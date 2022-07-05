@@ -15,6 +15,8 @@ const { user } = storeToRefs(useUserStore())
 
 let tweeting = ref('')
 
+let isLoading = ref(false)
+
 let media = ref(null)
 
 let file = ref(null)
@@ -30,17 +32,20 @@ let closeMedia = () => {
 
 let sendTweet = async () => {
   let path = null
+  isLoading.value = true
   if (media.value) {
     path = await useUserStore().storeMediaAndReturnPath(file.value)
   }
+
   await useUserStore().sendTweet(tweeting.value, path)
   tweeting.value = ''
   media.value = null
+  isLoading.value = false
 }
 </script>
 
 <template>
-  <div class="flex p-3 border-b border-ashy">
+  <div class="flex p-3 border-b border-ashy" :class="isLoading ? 'animate-pulse' : ''">
     <AvatarBox :avatar="user.avatar_url" />
 
     <div class="w-full flex flex-col gap-2">
@@ -63,7 +68,7 @@ let sendTweet = async () => {
           <IconSchedule />
         </div>
 
-        <PublisherButton :isDisabled="tweeting === '' && media == null" @click="sendTweet" />
+        <PublisherButton :isDisabled="(tweeting === '' && media === null) || isLoading" @click="sendTweet" />
       </div>
     </div>
   </div>

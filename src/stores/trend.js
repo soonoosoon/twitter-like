@@ -5,7 +5,7 @@ export const useTrendStore = defineStore('trend', {
     trending: [
       {
         type: 'Trending in United States',
-        title: 'Gravity Falls',
+        title: 'nayeon',
         subtile: '',
         quantity: '1,151'
       },
@@ -17,26 +17,29 @@ export const useTrendStore = defineStore('trend', {
       },
       {
         type: 'Trending in United States',
-        title: 'Chan',
-        subtile: "Stray Kids' Bang Chan entertains fans in his latest V Live stream",
+        title: 'TWICE',
+        subtile: '',
         quantity: '293K'
       }
     ],
     whoToFollow: [
       {
-        nickname: '스키나유타 🦋🍒 ⁰⁷',
-        username: 'sukinayuta',
-        avatarURL: '/src/assets/images/1.jpeg'
+        nickname: '나연 🐰🍒 ⁰⁷',
+        username: 'sukinayeon',
+        avatarURL:
+          'https://vfhzqfumuewiclufqapc.supabase.co/storage/v1/object/public/gallery/avatars/sunglass_avatar.png'
       },
       {
-        nickname: '実桜🍒',
-        username: 'ooo_yutamio',
-        avatarURL: '/src/assets/images/2.jpeg'
+        nickname: 'NAYEON🍒',
+        username: 'pop_pop',
+        avatarURL:
+          'https://vfhzqfumuewiclufqapc.supabase.co/storage/v1/object/public/gallery/avatars/handsup_avatar.png'
       },
       {
-        nickname: '🍒Yukkuri¹⁰²⁶🦋',
-        username: 'Yeokshi_Yukkuri',
-        avatarURL: 'src/assets/images/3.jpeg'
+        nickname: '🐰nayeon🦋',
+        username: 'nayeonyny',
+        avatarURL:
+          'https://vfhzqfumuewiclufqapc.supabase.co/storage/v1/object/public/gallery/avatars/nayeon_avatar.png'
       }
     ]
   })

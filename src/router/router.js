@@ -61,7 +61,7 @@ const routes = [
           },
           {
             path: 'likes',
-            component: () => import('../components/Profile/ProfileTweets.vue')
+            component: () => import('../components/Profile/ProfileLikes.vue')
           }
         ]
       }

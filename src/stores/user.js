@@ -4,7 +4,7 @@ import { getTime } from '../helper/utility'
 
 export const useUserStore = defineStore('user', {
   // 开启持久化
-  //persist: true,
+  persist: true,
 
   state: () => ({
     user: null,
@@ -34,6 +34,14 @@ export const useUserStore = defineStore('user', {
         const tweet = state.tweets.find((tweet) => tweet.id === id)
         return tweet.liked_user_id ? tweet.liked_user_id.length : 0
       }
+    },
+
+    getAllTweetsWithMedia: (state) => {
+      return () => state.ownTweets.filter((tweet) => tweet.media !== null)
+    },
+
+    getAllLikedTweets: (state) => {
+      return () => state.tweets.filter((tweet) => state.user.liked_tweet_id.includes(tweet.id))
     }
   },
 
@@ -180,9 +188,9 @@ export const useUserStore = defineStore('user', {
      * @returns url or null
      */
     async storeMediaAndReturnPath(file) {
-      const { error: uploadError } = await supabase.storage.from('avatars').upload(file.name, file)
+      const { error: uploadError } = await supabase.storage.from('gallery/images').upload(file.name, file)
       if (uploadError) throw uploadError
-      const { publicURL, error: pathError } = supabase.storage.from('avatars').getPublicUrl(file.name)
+      const { publicURL, error: pathError } = supabase.storage.from('gallery/images').getPublicUrl(file.name)
       if (pathError) throw uploadError
       if (publicURL) return publicURL
       else return null
@@ -213,19 +221,6 @@ export const useUserStore = defineStore('user', {
       if (data) this.getTweetsByTimeline()
     },
 
-    async confirmLikeInTweet(tweet_id) {
-      const tweet = this.tweets.filter((item) => item.id === tweet_id)
-      const arr = tweet[0].liked_user_id
-      arr.push(this.user.id)
-
-      const { data, error } = await supabase
-        .from('tweets')
-        .update({ liked_user_id: arr })
-        .match({ id: tweet_id })
-      if (error) throw error
-      if (data) this.getTweetsByTimeline()
-    },
-
     /**
      * insert like in like_tweet_id
      */
@@ -238,6 +233,19 @@ export const useUserStore = defineStore('user', {
         .match({ id: this.user.id })
       if (error) throw error
       if (data) this.getUserProfile(this.user.id)
+    },
+
+    async confirmLikeInTweet(tweet_id) {
+      const tweet = this.tweets.filter((item) => item.id === tweet_id)
+      const arr = tweet[0].liked_user_id
+      arr.push(this.user.id)
+
+      const { data, error } = await supabase
+        .from('tweets')
+        .update({ liked_user_id: arr })
+        .match({ id: tweet_id })
+      if (error) throw error
+      if (data) this.getTweetsByTimeline()
     }
   }
 })

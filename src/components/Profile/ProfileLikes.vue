@@ -5,11 +5,11 @@ import TweetBox from '../Tweet/TweetBox.vue'
 
 const userStore = useUserStore()
 
-const { isUserLikedTweet, getTotalLikedById, getAllTweetsWithMedia } = storeToRefs(userStore)
+const { isUserLikedTweet, getTotalLikedById, getAllLikedTweets } = storeToRefs(userStore)
 </script>
 
 <template>
-  <div class="flex flex-col" v-for="(item, index) in getAllTweetsWithMedia()" :key="index">
+  <div class="flex flex-col" v-for="(item, index) in getAllLikedTweets()" :key="index">
     <TweetBox
       :avatar="item.avatar_url"
       :name="item.nickname"
