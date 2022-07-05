@@ -18,8 +18,13 @@
 ## Timeline
 ![preview](.github/assets/screenshot6.jpg)
 
+## Resize
+![preview](.github/assets/screenshot7.jpg)
+
+# Vercel ✨
 You can visit vercel link [here](https://twitter-like-jet.vercel.app) with the following email and password
 
+| ------ | ------ |
 | email | ciwege2358@jrvps.com |
 | ------ | ------ |
 | password | nayuta |
@@ -49,8 +54,8 @@ You can visit vercel link [here](https://twitter-like-jet.vercel.app) with the f
 
 - [Supabase](https://github.com/supabase)
 - [PostgreSQL](https://www.postgresql.org/)
-- [Vue 3](https://v3.vuejs.org/)
-- [Vite 2.0](https://vitejs.dev/)
+- [Vue](https://v3.vuejs.org/)
+- [Vite](https://vitejs.dev/)
 - [Pinia](https://pinia.vuejs.org/)
 - [Vue Router 4](https://next.router.vuejs.org)
 - [TailwindCSS](http://tailwindcs.com/)
