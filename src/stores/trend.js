@@ -1,6 +1,7 @@
 import { defineStore, acceptHMRUpdate } from 'pinia'
 
 export const useTrendStore = defineStore('trend', {
+  persist: true,
   state: () => ({
     trending: [
       {
