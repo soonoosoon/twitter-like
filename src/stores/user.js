@@ -5,7 +5,7 @@ import { data } from 'autoprefixer'
 
 export const useUserStore = defineStore('user', {
   // 开启持久化
-  persist: true,
+  // persist: true,
 
   state: () => ({
     user: null,
