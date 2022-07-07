@@ -1,6 +1,7 @@
 import { defineStore, acceptHMRUpdate } from 'pinia'
 import supabase from '../supabase'
 import { getTime } from '../helper/utility'
+import { data } from 'autoprefixer'
 
 export const useUserStore = defineStore('user', {
   // 开启持久化
@@ -15,6 +16,10 @@ export const useUserStore = defineStore('user', {
   }),
 
   getters: {
+    getTweetById: (state) => {
+      return (id) => state.tweets.find((tweet) => tweet.id === id)
+    },
+
     getAllFollowingId: (state) => {
       return () => state.followings.map((following) => following.id)
     },
@@ -23,16 +28,32 @@ export const useUserStore = defineStore('user', {
       return (id) => state.followings.find((following) => following.id === id)
     },
 
-    isUserLikedTweet: (state) => {
+    isTweetLiked: (state) => {
+      return (id) => state.user.liked_tweet_id.includes(id)
+    },
+
+    isTweetRetweeted: (state) => {
+      return (id) => state.user.retweeted_tweet_id.includes(id)
+    },
+
+    getTotalRepliedById: (state) => {
       return (id) => {
-        return state.user.liked_tweet_id ? state.user.liked_tweet_id.includes(id) : false
+        const tweet = state.tweets.find((tweet) => tweet.id === id)
+        return tweet.replied_user_id.length
+      }
+    },
+
+    getTotalRetweetedById: (state) => {
+      return (id) => {
+        const tweet = state.tweets.find((tweet) => tweet.id === id)
+        return tweet.retweeted_tweet_id.length
       }
     },
 
     getTotalLikedById: (state) => {
       return (id) => {
         const tweet = state.tweets.find((tweet) => tweet.id === id)
-        return tweet.liked_user_id ? tweet.liked_user_id.length : 0
+        return tweet.liked_user_id.length
       }
     },
 
@@ -112,10 +133,7 @@ export const useUserStore = defineStore('user', {
      * Get all tweets by self
      */
     async getOwnTweets() {
-      const { data, error } = await supabase
-        .from('tweets')
-        .select('id, userId, tweet, media, createdTime, liked_user_id')
-        .eq('userId', this.user.id)
+      const { data, error } = await supabase.from('tweets').select('*').eq('userId', this.user.id)
       if (error) throw error
       if (data) {
         data.sort((a, b) => {
@@ -124,11 +142,25 @@ export const useUserStore = defineStore('user', {
           return bt - at
         })
         this.ownTweets = data.map((item) => {
-          return {
-            ...item,
-            avatar_url: this.user.avatar_url,
-            username: this.user.username,
-            nickname: this.user.nickname
+          // retweet someone's tweet
+          if (item.original_tweet_id) {
+            const original_tweet = this.tweets.find((tweet) => tweet.id === item.original_tweet_id)
+            if (original_tweet.userId !== this.user.id) {
+              const owner = this.getFollowingById(original_tweet.userId)
+              return {
+                ...item,
+                avatar_url: owner.avatar_url,
+                username: owner.username,
+                nickname: owner.nickname
+              }
+            }
+          } else {
+            return {
+              ...item,
+              avatar_url: this.user.avatar_url,
+              username: this.user.username,
+              nickname: this.user.nickname
+            }
           }
         })
       }
@@ -138,10 +170,7 @@ export const useUserStore = defineStore('user', {
      * Get all tweets by followings
      */
     async getFollowingTweets() {
-      const { data, error } = await supabase
-        .from('tweets')
-        .select('id, userId, tweet, media, createdTime, liked_user_id')
-        .in('userId', this.getAllFollowingId())
+      const { data, error } = await supabase.from('tweets').select('*').in('userId', this.getAllFollowingId())
       if (error) throw error
       if (data)
         this.followingTweets = data.map((item) => {
@@ -197,7 +226,7 @@ export const useUserStore = defineStore('user', {
     },
 
     /**
-     * delete like in liked_tweet_id
+     * delete like in liked_tweet_id of user
      */
     async cancelLikeInUser(tweet_id) {
       const arr = this.user.liked_tweet_id.filter((item) => item !== tweet_id)
@@ -209,9 +238,12 @@ export const useUserStore = defineStore('user', {
       if (data) this.getUserProfile(this.user.id)
     },
 
+    /**
+     * delete user in liked_user_id of tweet
+     */
     async cancelLikeInTweet(tweet_id) {
-      const tweet = this.tweets.filter((item) => item.id === tweet_id)
-      let arr = tweet[0].liked_user_id
+      const tweet = this.tweets.find((item) => item.id === tweet_id)
+      let arr = tweet.liked_user_id
       arr = arr.filter((item) => item !== this.user.id)
       const { data, error } = await supabase
         .from('tweets')
@@ -222,7 +254,7 @@ export const useUserStore = defineStore('user', {
     },
 
     /**
-     * insert like in like_tweet_id
+     * insert like in liked_tweet_id of user
      */
     async confirmLikeInUser(tweet_id) {
       const arr = this.user.liked_tweet_id
@@ -235,15 +267,112 @@ export const useUserStore = defineStore('user', {
       if (data) this.getUserProfile(this.user.id)
     },
 
+    /**
+     * insert user in liked_user_id of tweet
+     */
     async confirmLikeInTweet(tweet_id) {
-      const tweet = this.tweets.filter((item) => item.id === tweet_id)
-      const arr = tweet[0].liked_user_id
+      const tweet = this.tweets.find((item) => item.id === tweet_id)
+      const arr = tweet.liked_user_id
       arr.push(this.user.id)
 
       const { data, error } = await supabase
         .from('tweets')
         .update({ liked_user_id: arr })
         .match({ id: tweet_id })
+      if (error) throw error
+      if (data) this.getTweetsByTimeline()
+    },
+
+    /**
+     * insert retweet in retweeted_tweet_id of user
+     */
+    async confirmRetweetInUser(tweet_id) {
+      const arr = this.user.retweeted_tweet_id
+      arr.push(tweet_id)
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({ retweeted_tweet_id: arr })
+        .match({ id: this.user.id })
+      if (error) throw error
+      if (data) this.getUserProfile(this.user.id)
+    },
+
+    /**
+     * insert user in retweeted_tweet_id of tweet
+     */
+    async confirmRetweetInTweet(tweet_id) {
+      const tweet = this.tweets.find((item) => item.id === tweet_id)
+      const arr = tweet.retweeted_tweet_id
+      // if user retweet his own tweet, do not insert a new line
+      if (tweet.userId === this.user.id) {
+        arr.push(tweet_id)
+      } else {
+        const newTweet = await this.insertRetweet(tweet)
+        arr.push(newTweet[0].id)
+      }
+      const { error } = await supabase
+        .from('tweets')
+        .update({ retweeted_tweet_id: arr })
+        .match({ id: tweet_id })
+      if (error) throw error
+      if (data) this.getTweetsByTimeline()
+    },
+
+    /**
+     * delete retweet in retweeted_tweet_id of user
+     */
+    async cancelRetweetInUser(tweet_id) {
+      const arr = this.user.retweeted_tweet_id.filter((item) => item !== tweet_id)
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({ retweeted_tweet_id: arr })
+        .match({ id: this.user.id })
+      if (error) throw error
+      if (data) this.getUserProfile(this.user.id)
+    },
+
+    /**
+     * delete user in retweeted_tweet_id of tweet
+     */
+    async cancelRetweetInTweet(tweet_id, original_tweet_id) {
+      const original_tweet = this.tweets.find((item) => item.id === original_tweet_id)
+      // if user cancel the retweets of his own tweet
+      if (original_tweet.userId === this.user.id) {
+        const arr = original_tweet.retweeted_tweet_id.filter((item) => item !== tweet_id)
+        const { data, error } = await supabase
+          .from('tweets')
+          .update({ retweeted_tweet_id: arr })
+          .match({ id: original_tweet_id })
+        if (error) throw error
+        if (data) this.getTweetsByTimeline()
+      } else {
+        const arr = original_tweet.retweeted_tweet_id.filter((item) => item !== tweet_id)
+        const { data, error } = await supabase
+          .from('tweets')
+          .update({ retweeted_tweet_id: arr })
+          .match({ id: original_tweet_id })
+        if (error) throw error
+        if (data) this.deleteRetweet(tweet_id)
+      }
+    },
+
+    async insertRetweet(tweet) {
+      const time = getTime()
+      const { data, error } = await supabase.from('tweets').insert([
+        {
+          userId: this.user.id,
+          original_tweet_id: tweet.id,
+          tweet: tweet.tweet,
+          media: tweet.media,
+          createdTime: time
+        }
+      ])
+      if (error) throw error
+      if (data) return data
+    },
+
+    async deleteRetweet(tweet_id) {
+      const { data, error } = await supabase.from('tweets').delete().eq('id', tweet_id)
       if (error) throw error
       if (data) this.getTweetsByTimeline()
     }
