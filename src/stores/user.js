@@ -142,25 +142,11 @@ export const useUserStore = defineStore('user', {
           return bt - at
         })
         this.ownTweets = data.map((item) => {
-          // retweet someone's tweet
-          if (item.original_tweet_id) {
-            const original_tweet = this.tweets.find((tweet) => tweet.id === item.original_tweet_id)
-            if (original_tweet.userId !== this.user.id) {
-              const owner = this.getFollowingById(original_tweet.userId)
-              return {
-                ...item,
-                avatar_url: owner.avatar_url,
-                username: owner.username,
-                nickname: owner.nickname
-              }
-            }
-          } else {
-            return {
-              ...item,
-              avatar_url: this.user.avatar_url,
-              username: this.user.username,
-              nickname: this.user.nickname
-            }
+          return {
+            ...item,
+            avatar_url: this.user.avatar_url,
+            username: this.user.username,
+            nickname: this.user.nickname
           }
         })
       }
@@ -362,8 +348,6 @@ export const useUserStore = defineStore('user', {
         {
           userId: this.user.id,
           original_tweet_id: tweet.id,
-          tweet: tweet.tweet,
-          media: tweet.media,
           createdTime: time
         }
       ])

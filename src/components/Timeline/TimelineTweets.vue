@@ -21,9 +21,9 @@ const {
     <TweetBox
       v-if="item.original_tweet_id !== null"
       :id="item.id"
-      :avatar="item.avatar_url"
-      :name="item.nickname"
-      :username="item.username"
+      :avatar="getTweetById(item.original_tweet_id).avatar_url"
+      :name="getTweetById(item.original_tweet_id).nickname"
+      :username="getTweetById(item.original_tweet_id).username"
       :time="getTweetById(item.original_tweet_id).createdTime"
       :tweet="getTweetById(item.original_tweet_id).tweet"
       :media="getTweetById(item.original_tweet_id).media"
