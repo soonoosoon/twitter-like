@@ -24,8 +24,10 @@
 # Vercel ✨
 You can visit vercel link [here](https://twitter-like-jet.vercel.app) with the following email and password
 
-| email | ciwege2358@jrvps.com |
-| password | nayuta |
+
+| email | pwd |
+| ------ | ------ |
+| ciwege2358@jrvps.com | nayuta |
 
 # Features ✨
 
@@ -43,7 +45,6 @@ You can visit vercel link [here](https://twitter-like-jet.vercel.app) with the f
 - Like Tweets
 - Retweets
 - Reply to Tweets
-- See following and see their followers
 - See Liked Tweets List
 - See Retweets Tweets List
 - See Tweets List with Media
