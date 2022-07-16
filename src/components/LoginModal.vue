@@ -12,9 +12,9 @@ const userStore = useUserStore()
 
 const router = useRouter()
 
-const email = ref('')
+const email = ref('ciwege2358@jrvps.com')
 
-const password = ref('')
+const password = ref('nayuta')
 
 const isLanding = ref(false)
 
@@ -44,14 +44,14 @@ const login = async () => {
         <input
           v-model="email"
           type="email"
-          placeholder="ciwege2358@jrvps.com"
+          placeholder=""
           class="p-3 rounded-md border focus:outline-twitterblue autofill:bg-transparent"
         />
 
         <input
           v-model="password"
           type="password"
-          placeholder="nayuta"
+          placeholder="password"
           class="p-3 rounded-md border focus:outline-twitterblue autofill:border autofill:bg-white"
         />
 
