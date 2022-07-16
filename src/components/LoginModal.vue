@@ -44,14 +44,14 @@ const login = async () => {
         <input
           v-model="email"
           type="email"
-          placeholder="Phone number, email address"
+          placeholder="ciwege2358@jrvps.com"
           class="p-3 rounded-md border focus:outline-twitterblue autofill:bg-transparent"
         />
 
         <input
           v-model="password"
           type="password"
-          placeholder="Password"
+          placeholder="nayuta"
           class="p-3 rounded-md border focus:outline-twitterblue autofill:border autofill:bg-white"
         />
 
